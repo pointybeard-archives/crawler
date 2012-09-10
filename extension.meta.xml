@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<extension id="crawler" status="released" xmlns="http://symphony-cms.com/schemas/extension/1.0">
+	<name>Page Crawler</name>
+	<description>Spiders a local or remote Symphony powered website profiling pages and looking for problems.</description>
+	<repo type="github">https://github.com/pointybeard/crawler</repo>
+	<url type="discuss">http://symphony-cms.com/discuss/thread/XXX/</url>
+	<types>
+		<type>Utility</type>
+	</types>
+	<authors>
+		<author>
+			<name github="pointybeard" symphony="team">Alistair Kearney</name>
+			<website>http://alistairkearney.com</website>
+		</author>
+	</authors>
+	<releases>
+		<release version="0.01" date="2012-09-10" min="2.3.1beta1" max="2.3.1beta2">
+			- Initial release
+		</release>
+	</releases>
+</extension>
