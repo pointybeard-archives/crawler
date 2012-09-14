@@ -6,16 +6,20 @@
 	Class Crawl extends ShellCommand{
 		
 		public function usage(){
-			return "usage: crawl [URL]
+			return "usage: crawl [URL] [BASE]
 	Begins the crawl process. 
 	
 	Note: This command requires authentication
 
 	options:
 		[URL] - Link to website to crawl.
+		[BASE] - Optional. Base URL. Allows the crawler to more accurately
+				 determine how to follow relative links. If this is ommitted
+				 the crawler will attempt to guess the base URL from [URL]
 
 	examples:
-		symphony -t 4141e465 crawler crawl http://mysite.com
+		symphony -t 4141e465 crawler crawl http://mysite.com/
+		symphony -t 4141e465 crawler crawl http://mysite.com/bananas/ http://mysite.com
 \n";
 		}
 		
