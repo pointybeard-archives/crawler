@@ -1,13 +1,9 @@
 <?php
-	
+
 	require_once(TOOLKIT . '/class.gateway.php');
-	
+	require_once(EXTENSIONS . '/crawler/lib/class.session.php');
+
 	Class Crawl extends ShellCommand{
-		
-		private static $_analysedLinks;
-		private static $_base;
-		private static $_maxDepth = 2;
-		private static $_session;
 		
 		public function usage(){
 			return "usage: crawl [URL]
@@ -23,7 +19,7 @@
 \n";
 		}
 		
-		private static function __printCLIMessage($message, $include_break=true, $include_timestamp=true){
+		public static function printCLIMessage($message, $include_break=true, $include_timestamp=true){
 			printf(
 				"%s%s%s", 
 				($include_timestamp == true ? DateTimeObj::get('H:m:s') . ' > ' : NULL), 
@@ -31,69 +27,7 @@
 				($include_break == true ? "\n" : NULL)
 			);
 		}
-		
-		private function __startNewSession($url){
-			Symphony::Database()->query(sprintf(
-				"INSERT INTO `tbl_crawler_sessions` VALUES (NULL, NOW(), '%s', NULL, 'in-progress')",
-				MySQL::cleanValue($url)
-			));
-			
-			$id = Symphony::Database()->getInsertID();
-			
-			self::$_session = Symphony::Database()->fetchRow(0, 
-				"SELECT * FROM `tbl_crawler_sessions` WHERE `id` = {$id} LIMIT 1"
-			);
-			
-			return $id;
-		}
-		
-		private function __closeSession($id, $time, $status='complete'){
-			return Symphony::Database()->query(sprintf(
-				"UPDATE `tbl_crawler_sessions` SET `time` = %s, `status` = '%s' WHERE `id` = %s LIMIT 1",
-				$time,
-				MySQL::cleanValue($status),
-				$id
-			));
-		}
-		
-		private static function __recordPageResult($session_id, $parent_id=NULL, $time, array $page){
-			
-			Symphony::Database()->query(sprintf(
-				"INSERT INTO `tbl_crawler_pages` 
-				(`id`, `session_id`, `parent_page_id`, `datestamp`, `location`, `http_code`, `content_type`, `time`, `headers_raw`)
-					VALUES 
-				(NULL, %d, %s, NOW(), '%s', %d, '%s', %s, '%s')",
-				$session_id,
-				($parent_id == NULL ? 'NULL' : $parent_id),
-				MySQL::cleanValue($page['url']),
-				$page['curl-info']['http_code'],
-				MySQL::cleanValue($page['curl-info']['content_type']),
-				$time,
-				MySQL::cleanValue($page['response']['headers'])
-			));
-			
-			return Symphony::Database()->getInsertID();
-			
-			/*
-			15:09:45 > - http://symphony.local/2.x/banana/ ... array(26) {
-			
-			  ["url"]=>string(33) "http://symphony.local/2.x/banana/"
-			  ["content_type"]=>string(24) "text/html; charset=UTF-8"
-			  ["http_code"]=>int(404)
-			  ["primary_ip"]=>string(9) "127.0.0.1"
-			  ["primary_port"]=>int(80)
-
-			  ["size_download"]=>float(593)
-			  ["speed_download"]=>float(57786)
-			
-			  ["total_time"]=>float(0.010262)
-			  ["namelookup_time"]=>float(2.9E-5)
-			  ["connect_time"]=>float(0.000173)
-			  ["pretransfer_time"]=>float(0.000227)
-
-			*/
-		}
-		
+	
 		public function run(array $args=NULL){
 			
 			if(!Shell::instance()->isLoggedIn()){
@@ -104,250 +38,11 @@
 				print "Oops, no URL was specified. Did you forget it?\n";
 				return;
 			}
-
-			if(isset($args[1])){
-				self::$_base = $args[1];
-			}
-			
-			else{
-				$parsed = parse_url($args[0]);
-			
-				if(!isset($parsed['scheme'])){
-					self::__printCLIMessage("WARNING - URL supplied did not contain any scheme. Assuming 'http'");
-					$parsed = parse_url("http://" . $args[0]);
-				}
-				
-				self::$_base = sprintf(
-					"%s://%s%s",
-					$parsed['scheme'], $parsed['host'],
-					(isset($parsed['port']) ? ":{$parsed['port']}" : NULL)
-				);
-				
-				self::__printCLIMessage("NOTICE - No base URL specified. Using " . self::$_base);
-			}
-
-			$start_time = precision_timer();
-			self::__printCLIMessage("Crawling Started -- '{$args[0]}'");
-			
-			self::$_analysedLinks = array();
-			
-			$this->__startNewSession($args[0]);
-			self::__analyse($args[0]);
-			
-			$stop_time = precision_timer();
-			$this->__closeSession(self::$_session['id'], number_format($stop_time - $start_time, 4), 'complete');
-			
-			self::__printCLIMessage(sprintf(
-				"Crawling completed in '%s' seconds", 
-				number_format($stop_time - $start_time, 4)
-			));
-		}
-		
-		private static function __analyse($url, $parent=NULL, $currentDepth=0){
-
-			if($currentDepth > self::$_maxDepth){
-				self::__printCLIMessage("Maximum depth reached. My feet are sore, I shall go no further.");
-				return;
-			}
-			
-			$start_time = precision_timer();
-			self::__printCLIMessage(
-				($currentDepth > 0 ? str_pad('', $currentDepth, '-') . ' ' : NULL)
-				. $url . " ... ", false
-			);
-			
-			// Important. This ensures we don't get in an endless loop.
-			if(in_array(strtolower(trim($url)), self::$_analysedLinks)){
-				self::__printCLIMessage(" previous analysed. Ignoring.", true, false);
-				return;
-			}
-			
-			// Add the link to our analysed link list. Sanitise it a little first.
-			self::$_analysedLinks[] = strtolower(trim(self::__correctLink($url)));
-			
-			$page = self::__loadPage($url);
-			
-			// Deal with status codes other than 200 OK
-			if($page['curl-info']['http_code'] != 200){
-				$page['links'] = NULL;
-				$stop_time = precision_timer();
-				self::__printCLIMessage(sprintf("resulted in %s (%ss) \t\t [×]",
-					$page['curl-info']['http_code'],
-					number_format($stop_time - $start_time, 4)
-				), true, false);
-			}
-			
-			else{
-				$page['links'] = self::__findLinksOnPage($page['response']['data'], $url);
-			
-				$stop_time = precision_timer();
-				self::__printCLIMessage(sprintf("found %d link/s (%d remote) in %ss \t\t [√]",
-					count($page['links']['local']) + count($page['links']['remote']), 
-					count($page['links']['remote']), 
-					number_format($stop_time - $start_time, 4)
-				), true, false);
 	
-			}
-			
-			// Save the data.
-			$page['id'] = self::__recordPageResult(
-				self::$_session['id'], $parent, number_format($stop_time - $start_time, 4), $page
-			);
-			
-			if(is_array($page['links']) && count($page['links']['local']) > 0 && $currentDepth + 1 <= self::$_maxDepth){
-				foreach($page['links']['local'] as $l){
-					self::__analyse($l, $page['id'], $currentDepth+1);
-				}
-			}
-			
+			$session = new Crawler\Session($args[0], Symphony::Database());
+			$session->start();
 			return;
-			
-		}
-		
-		private static function __isLinkRemote($root, $dest){
-			
-			if($dest{0} == "/") return false;
-			
-			$parsed_root = parse_url($root);
-			$parsed_dest = parse_url($dest);
-			
-			/*
-			array(2) {
-			  ["scheme"]=>
-			  string(4) "http"
-			  ["host"]=>
-			  string(15) "getsymphony.com"
-			}
-			array(3) {
-			  ["scheme"]=>
-			  string(4) "http"
-			  ["host"]=>
-			  string(15) "getsymphony.com"
-			  ["path"]=>
-			  string(14) "/discuss/blog/"
-			}
-			*/
-			
-			return strcasecmp($parsed_root['host'], $parsed_dest['host']) != 0;
-		}
-		
-		private static function __findLinksOnPage($data, $url){
 
-			$links = array(
-				'remote' => array(),
-				'local' => array()
-			);
-
-			// DOMDocument is more efficent
-			//preg_match_all('/<a\s+href=["\']([^"\']+)["\']/i', $data[0], $links, PREG_PATTERN_ORDER);
-			
-			$dom = new DOMDocument();
-			@$dom->loadHTML($data);
-
-			// grab all the on the page
-			$xpath = new DOMXPath($dom);
-			$elements = $xpath->evaluate("/html/body//a");
-			
-			$a = array();
-			for ($i = 0; $i < $elements->length; $i++) {
-				$l = $elements->item($i)->getAttribute('href');
-				if($l{0} == '#' || strlen(trim($l)) == 0) continue;
-				
-				$a[] = $l;
-			}
-			
-			$a = array_unique($a);
-			
-			foreach($a as $l){
-				$links[self::__isLinkRemote($url, $l) ? 'remote' : 'local'][] = trim($l);
-			}
-			
-			return $links;
-		}
-		
-		private static function __correctLink($value){
-			
-			// Thanks to example code provided by
-			// "Isaac Z. Schlueter i" (http://www.php.net/manual/en/function.realpath.php#85388)
-			
-			
-			$parsed = parse_url($value); 
-		    if (array_key_exists('scheme', $parsed)) { 
-		        return $value; 
-		    }
-
-		    $parsed_base = parse_url(self::$_base . " "); 
-
-		    if (!array_key_exists('path', $parsed_base)){ 
-		        $parsed_base = parse_url(self::$_base . "/ "); 
-		    }
-		
-			if ($value{0} === '/') $path = $value; 
-			else $path = dirname($parsed_base['path']) . "/{$value}"; 
-			
-			$path = preg_replace('@/\./@', '/', $path); 
-			
-			$parts = array(); 
-			foreach(explode('/', preg_replace('@/+@', '/', $path)) as $part){
-				if ($part === '..') array_pop($parts); 
-				elseif($part != '') $parts[] = $part; 
-	        }
-	
-			return sprintf("%s/%s", self::$_base, implode("/", $parts));
-
-		
-		}
-		
-		private static function __loadPage($url){
-			
-			$ch = curl_init();
-			
-			$url_parsed = parse_url(self::__correctLink($url));
-            
-			// Allow basic HTTP authentiction
-			if(isset($url_parsed['user']) && isset($url_parsed['pass'])){
-				curl_setopt($ch, CURLOPT_USERPWD, sprintf('%s:%s', $url_parsed['user'], $url_parsed['pass']));
-				curl_setopt($ch, CURLOPT_HTTPAUTH, CURLAUTH_ANY);
-			}
-			
-			// Better support for HTTPS requests
-			if($url_parsed['scheme'] == 'https'){
-				curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-			}
-
-			curl_setopt($ch, CURLOPT_URL, $url);
-			curl_setopt($ch, CURLOPT_HEADER, true);
-			curl_setopt($ch, CURLOPT_USERAGENT, "Symphony-CMS/Crawler");
-			curl_setopt($ch, CURLOPT_PORT, (isset($url_parsed['port']) ? $url_parsed['port'] : NULL));
-			@curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
-			curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-			curl_setopt($ch, CURLOPT_TIMEOUT, 10);
-
-			//curl_setopt($ch, CURLOPT_HTTPHEADER, $this->_headers);
-
-			// Grab the result
-			$raw = curl_exec($ch);
-			
-			// Split out the headers
-			$response = preg_split('/\r\n\r\n/', $raw, 2);
-			
-			// Split up the headers
-		//	$response[0] = preg_split('/\r?\n/', $response[0]);
-			
-			$info = curl_getinfo($ch);
-
-			// Close the connection
-			curl_close ($ch);
-			
-			return array(
-				'url' => $url,
-				'response' => array(
-					'headers' => $response[0],
-					'data' => $response[1]
-				), 
-				'curl-info' => $info
-			);
-			
 		}
 	}
 	
