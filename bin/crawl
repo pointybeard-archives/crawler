@@ -1,25 +1,45 @@
 <?php
 
 	require_once(TOOLKIT . '/class.gateway.php');
+	require_once(EXTENSIONS . '/asdc/lib/class.asdc.php');
 	require_once(EXTENSIONS . '/crawler/lib/class.session.php');
-
+	//require_once(EXTENSIONS . '/crawler/lib/functions.php');
+	
 	Class Crawl extends ShellCommand{
 		
 		public function usage(){
-			return "usage: crawl [URL] [BASE]
-	Begins the crawl process. 
-	
-	Note: This command requires authentication
+			return "Usage: crawl [options...] <url>
+    Begins the crawl process.
 
-	options:
-		[URL] - Link to website to crawl.
-		[BASE] - Optional. Base URL. Allows the crawler to more accurately
-				 determine how to follow relative links. If this is ommitted
-				 the crawler will attempt to guess the base URL from [URL]
+    This command requires authentication.
 
-	examples:
-		symphony -t 4141e465 crawler crawl http://mysite.com/
-		symphony -t 4141e465 crawler crawl http://mysite.com/bananas/ http://mysite.com
+    options:
+        -t, --timeout       Maximum time spent (seconds) on any single 
+                            request for page data. Default is 10
+        -d, --max-depth     Maximum levels the crawler will go when 
+                            traversing a url. No default.
+        -c, --concurrency   Number of concurrent page crawling helper 
+                            threads. This will improve time taken to 
+                            crawl, but will increase load on target server. 
+                            Default is 1
+        -l, --page-limit    Maximum number of unique pages in total the 
+                            crawler is to process. No default.
+        -b, --base-url      Allows the crawler to more accurately determine 
+                            how to follow relative links. If this is ommitted
+                            the crawler will attempt to guess.
+        -d, --database      Instead of using the current internal Symphony
+                            database connection, use this connection instead.
+                            Must be a valid connection string. e.g.
+                            mysql://[user]:[pass]@[host]:[port]/[database]/
+        --db-char-encoding  Defaults to Symphony config
+        --db-char-set       Defaults to Symphony config
+        --db-table-prefix   Defaults to Symphony config
+        --db-force-cache    Defaults to Symphony config
+
+
+    examples:
+       symphony -t 4141e465 crawler crawl http://site.com/
+       symphony -t 4141e465 crawler crawl http://site.com/b/ http://site.com
 \n";
 		}
 		
@@ -33,17 +53,77 @@
 		}
 	
 		public function run(array $args=NULL){
+
+			$url = array_pop($args);
+			
+			$args = (object)Shell::cleanArguments($args);
+			$args->url = $url;
 			
 			if(!Shell::instance()->isLoggedIn()){
 				throw new Exception('Valid authentication token must be supplied.');
 			}
 			
-			elseif(empty($args)){
-				print "Oops, no URL was specified. Did you forget it?\n";
-				return;
+			elseif(!isset($args->url)){
+				fputs(STDERR, "Oops, no URL was specified. Did you forget it?\n");
+				exit(1);
 			}
-	
-			$session = new Crawler\Session($args[0], Symphony::Database());
+			
+			if(!isset($args->d) && !isset($args->database)){
+				$db = ASDCLoader::instance();	
+			}
+			
+			else{
+				
+				if(isset($args->d)) $connection_string = $args->d;
+				else  $connection_string = $args->database;
+				
+				$details = (object)Symphony::Configuration()->get('database');
+				
+				$db = new ASDCMySQL;
+				
+				### Optional ###
+				/*
+				--db-char-encoding  Defaults to Symphony config
+		        --db-char-set       Defaults to Symphony config
+		        --db-table-prefix   Defaults to Symphony config
+		        --db-force-cache    Defaults to Symphony config
+				*/
+				
+				if(isset($args->{'db-char-encoding'})){
+					$db->character_encoding = $args->{'db-char-encoding'};
+				}
+				
+				elseif(isset($args->{'db-char-set'})){
+					$db->character_set = $args->{'db-char-set'};
+				}
+				
+				elseif($details->runtime_character_set_alter == 'yes'){
+					$db->character_encoding = $details->character_encoding;
+					$db->character_set = $details->character_set;
+				}
+
+				try{
+					$db->connect($connection_string);
+
+					$db->prefix = (isset($args->{'db-table-prefix'}) ? $args->{'db-table-prefix'} : $details->tbl_prefix);
+					
+					$db->force_query_caching = NULL;
+					if(isset($args->{'db-force-cache'})){
+						$db->force_query_caching = ($args->{'db-force-cache'} == 'yes' ? true : false);
+					}
+					elseif(!is_null($details->disable_query_caching)){ 
+						$db->force_query_caching = ($details->disable_query_caching == 'yes' ? true : false);
+					}
+					
+				}
+				catch(Exception $e){
+					fputs(STDERR, 'ERROR - ' . $e->getMessage() . "\n");
+					exit(1);
+				}
+				
+			}
+			
+			$session = new Crawler\Session($args->url, $db);
 			$session->start();
 			return;
 
