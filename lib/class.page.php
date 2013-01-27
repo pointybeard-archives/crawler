@@ -122,7 +122,12 @@
 		
 			$parsed_root = parse_url($root);
 			$parsed_dest = parse_url($dest);
-		
+			
+			// If there is no scheme or host, then its a relative link
+			if(isset($parsed_dest['path']) && (!isset($parsed_dest['scheme']) && !isset($parsed_dest['host']))){
+				return false;
+			}
+			
 			return strcasecmp($parsed_root['host'], $parsed_dest['host']) != 0;
 		}
 	
@@ -156,11 +161,22 @@
 			}
 		
 			$a = array_unique($a);
-		
+
 			foreach($a as $l){
-				$this->_links->{(self::isRemote($this->_url, $l) ? 'remote' : 'local')}[] = trim($l);
+				$bIsRemote = self::isRemote($this->_url, $l);
+				
+				if(!$bIsRemote){
+					// Check for relative links here
+					$parsed = parse_url($l); 
+				    if (!array_key_exists('scheme', $parsed) && $l{0} !== '/' && $l{0} !== '.'){
+						$p = parse_url($this->_url);
+						$l = sprintf("%s://%s%s/%s", $p['scheme'], $p['host'], dirname($p['path']), $l);
+				    }
+				}
+				
+				$this->_links->{$bIsRemote ? 'remote' : 'local'}[] = trim($l);
 			}
-		
+
 		}
 	
 		private function __load(){
