@@ -16,7 +16,7 @@
     options:
         -t, --timeout       Maximum time spent (seconds) on any single 
                             request for page data. Default is 10
-        -d, --max-depth     Maximum levels the crawler will go when 
+        --max-depth     	Maximum levels the crawler will go when 
                             traversing a url. No default.
         -c, --concurrency   Number of concurrent page crawling helper 
                             threads. This will improve time taken to 
@@ -24,7 +24,7 @@
                             Default is 1
         -l, --page-limit    Maximum number of unique pages in total the 
                             crawler is to process. No default.
-        -b, --base-url      Allows the crawler to more accurately determine 
+        --base-url      	Allows the crawler to more accurately determine 
                             how to follow relative links. If this is ommitted
                             the crawler will attempt to guess.
         -d, --database      Instead of using the current internal Symphony
@@ -123,7 +123,7 @@
 				
 			}
 			
-			$session = new Crawler\Session($args->url, $db);
+			$session = new Crawler\Session($args->url, $db, (isset($args->{'base-url'}) ? $args->{'base-url'} : NULL));
 			$session->start();
 			return;
 
