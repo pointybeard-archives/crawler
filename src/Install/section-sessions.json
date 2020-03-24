@@ -9,12 +9,26 @@
             "name": "Sessions",
             "fields": [
                 {
+                    "required": false,
+                    "showColumn": true,
+                    "location": "sidebar",
+                    "sortOrder": 2,
+                    "elementName": "date-completed-at",
+                    "label": "Date Completed At",
+                    "type": "date",
+                    "custom": {
+                        "prePopulate": "",
+                        "calendar": false,
+                        "time": true
+                    }
+                },
+                {
                     "required": true,
                     "showColumn": true,
                     "location": "sidebar",
-                    "sortOrder": 1,
-                    "elementName": "date-started-at",
-                    "label": "Date Started At",
+                    "sortOrder": 0,
+                    "elementName": "date-created-at",
+                    "label": "Date Created At",
                     "type": "date",
                     "custom": {
                         "prePopulate": "now",
@@ -26,17 +40,55 @@
                     "required": false,
                     "showColumn": true,
                     "location": "sidebar",
-                    "sortOrder": 0,
+                    "sortOrder": 9,
+                    "elementName": "base",
+                    "label": "Base",
+                    "type": "textbox",
+                    "custom": {
+                        "columnLength": 75,
+                        "textSize": "single",
+                        "textFormatter": "none",
+                        "textValidator": "/^[^\\s:\\/?#]+:(?:\\/{2,3})?[^\\s.\\/?#]+(?:\\.[^\\s.\\/?#]+)*(?:\\/?[^\\s?#]*\\??[^\\s?#]*(#[^\\s#]*)?)?$/",
+                        "textCDATA": false,
+                        "textHandle": false,
+                        "handleUnique": false
+                    }
+                },
+                {
+                    "required": false,
+                    "showColumn": false,
+                    "location": "sidebar",
+                    "sortOrder": 8,
+                    "elementName": "timeout",
+                    "label": "Timeout",
+                    "type": "number",
+                    "custom": []
+                },
+                {
+                    "required": false,
+                    "showColumn": false,
+                    "location": "sidebar",
+                    "sortOrder": 7,
+                    "elementName": "max-depth",
+                    "label": "Max Depth",
+                    "type": "number",
+                    "custom": []
+                },
+                {
+                    "required": false,
+                    "showColumn": true,
+                    "location": "sidebar",
+                    "sortOrder": 3,
                     "elementName": "uuid",
                     "label": "UUID",
                     "type": "uuid",
                     "custom": []
                 },
                 {
-                    "required": true,
+                    "required": false,
                     "showColumn": true,
                     "location": "sidebar",
-                    "sortOrder": 2,
+                    "sortOrder": 4,
                     "elementName": "seed",
                     "label": "Seed",
                     "type": "textbox",
@@ -54,8 +106,8 @@
                     "required": false,
                     "showColumn": true,
                     "location": "sidebar",
-                    "sortOrder": 3,
-                    "elementName": "time-ms",
+                    "sortOrder": 5,
+                    "elementName": "time",
                     "label": "Time (ms)",
                     "type": "number",
                     "custom": []
@@ -64,14 +116,28 @@
                     "required": true,
                     "showColumn": true,
                     "location": "sidebar",
-                    "sortOrder": 4,
+                    "sortOrder": 6,
                     "elementName": "status",
                     "label": "Status",
                     "type": "select",
                     "custom": {
                         "allowMultipleSelection": false,
                         "sortOptions": false,
-                        "staticOptions": "Complete,In Progress,Aborted,Failed,Unknown"
+                        "staticOptions": "Pending,In Progress,Complete,Aborted,Failed,Unknown"
+                    }
+                },
+                {
+                    "required": false,
+                    "showColumn": true,
+                    "location": "sidebar",
+                    "sortOrder": 1,
+                    "elementName": "date-started-at",
+                    "label": "Date Started At",
+                    "type": "date",
+                    "custom": {
+                        "prePopulate": "",
+                        "calendar": false,
+                        "time": true
                     }
                 }
             ],

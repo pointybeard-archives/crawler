@@ -5,28 +5,14 @@
             "allowFiltering": true,
             "hideFromBackendNavigation": false,
             "sortOrder": 20,
-            "handle": "crawler-pages",
-            "name": "Pages",
+            "handle": "crawler-resources",
+            "name": "Resources",
             "fields": [
                 {
                     "required": true,
                     "showColumn": true,
-                    "location": "sidebar",
-                    "sortOrder": 1,
-                    "elementName": "date-crawled-at",
-                    "label": "Date Crawled At",
-                    "type": "date",
-                    "custom": {
-                        "prePopulate": "now",
-                        "calendar": false,
-                        "time": true
-                    }
-                },
-                {
-                    "required": true,
-                    "showColumn": true,
                     "location": "main",
-                    "sortOrder": 3,
+                    "sortOrder": 1,
                     "elementName": "location",
                     "label": "Location",
                     "type": "textbox",
@@ -44,7 +30,7 @@
                     "required": true,
                     "showColumn": true,
                     "location": "sidebar",
-                    "sortOrder": 4,
+                    "sortOrder": 2,
                     "elementName": "status-code",
                     "label": "Status Code",
                     "type": "selectbox_link",
@@ -62,7 +48,7 @@
                     "required": true,
                     "showColumn": true,
                     "location": "main",
-                    "sortOrder": 5,
+                    "sortOrder": 3,
                     "elementName": "content-type",
                     "label": "Content Type",
                     "type": "textbox",
@@ -80,7 +66,7 @@
                     "required": true,
                     "showColumn": false,
                     "location": "main",
-                    "sortOrder": 7,
+                    "sortOrder": 4,
                     "elementName": "request",
                     "label": "Request",
                     "type": "textbox",
@@ -97,7 +83,7 @@
                     "required": true,
                     "showColumn": false,
                     "location": "main",
-                    "sortOrder": 8,
+                    "sortOrder": 5,
                     "elementName": "response-headers",
                     "label": "Response Headers",
                     "type": "textbox",
@@ -124,7 +110,7 @@
                     "required": false,
                     "showColumn": true,
                     "location": "main",
-                    "sortOrder": 0,
+                    "sortOrder": 7,
                     "elementName": "uuid",
                     "label": "UUID",
                     "type": "uuid",
@@ -134,7 +120,7 @@
                     "required": true,
                     "showColumn": true,
                     "location": "sidebar",
-                    "sortOrder": 2,
+                    "sortOrder": 8,
                     "elementName": "session",
                     "label": "Session",
                     "type": "selectbox_link",
@@ -153,32 +139,46 @@
                     "showColumn": false,
                     "location": "sidebar",
                     "sortOrder": 9,
-                    "elementName": "links",
-                    "label": "Links",
+                    "elementName": "linked-resources",
+                    "label": "Linked Resources",
                     "type": "selectbox_link",
                     "custom": {
                         "allowMultipleSelection": true,
                         "hideWhenPrepopulated": false,
                         "limit": 255,
                         "relatedFieldId": {
-                            "section": "crawler-pages",
+                            "section": "crawler-resources",
                             "field": "uuid"
                         }
+                    }
+                },
+                {
+                    "required": true,
+                    "showColumn": true,
+                    "location": "sidebar",
+                    "sortOrder": 0,
+                    "elementName": "date-crawled-at",
+                    "label": "Date Crawled At",
+                    "type": "date",
+                    "custom": {
+                        "prePopulate": "now",
+                        "calendar": false,
+                        "time": true
                     }
                 }
             ],
             "associations": [
                 {
-                    "hideAssociation": true,
+                    "hideAssociation": false,
                     "interface": null,
                     "editor": null,
                     "parent": {
-                        "section": "crawler-status-codes",
-                        "field": "name"
+                        "section": "crawler-resources",
+                        "field": "uuid"
                     },
                     "child": {
-                        "section": "crawler-pages",
-                        "field": "status-code"
+                        "section": "crawler-resources",
+                        "field": "linked-resources"
                     }
                 },
                 {
@@ -190,7 +190,7 @@
                         "field": "date-started-at"
                     },
                     "child": {
-                        "section": "crawler-pages",
+                        "section": "crawler-resources",
                         "field": "session"
                     }
                 },
@@ -199,12 +199,12 @@
                     "interface": null,
                     "editor": null,
                     "parent": {
-                        "section": "crawler-pages",
-                        "field": "uuid"
+                        "section": "crawler-status-codes",
+                        "field": "name"
                     },
                     "child": {
-                        "section": "crawler-pages",
-                        "field": "links"
+                        "section": "crawler-resources",
+                        "field": "status-code"
                     }
                 }
             ]
