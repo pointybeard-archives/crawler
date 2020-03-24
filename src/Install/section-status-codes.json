@@ -1,0 +1,74 @@
+{
+    "sections": [
+        {
+            "navigationGroup": "Frontend Crawler",
+            "allowFiltering": false,
+            "hideFromBackendNavigation": false,
+            "sortOrder": 21,
+            "handle": "crawler-status-codes",
+            "name": "Status Codes",
+            "fields": [
+                {
+                    "required": true,
+                    "showColumn": false,
+                    "location": "main",
+                    "sortOrder": 1,
+                    "elementName": "description",
+                    "label": "Description",
+                    "type": "textbox",
+                    "custom": {
+                        "columnLength": 75,
+                        "textSize": "single",
+                        "textFormatter": "none",
+                        "textLength": 255,
+                        "textCDATA": false,
+                        "textHandle": true,
+                        "handleUnique": true
+                    }
+                },
+                {
+                    "required": true,
+                    "showColumn": false,
+                    "location": "main",
+                    "sortOrder": 2,
+                    "elementName": "code",
+                    "label": "Code",
+                    "type": "number",
+                    "custom": []
+                },
+                {
+                    "required": true,
+                    "showColumn": true,
+                    "location": "sidebar",
+                    "sortOrder": 3,
+                    "elementName": "group",
+                    "label": "Group",
+                    "type": "select",
+                    "custom": {
+                        "allowMultipleSelection": false,
+                        "sortOptions": false,
+                        "staticOptions": "1×× Informational,2×× Success,3×× Redirection,4×× Client Error,5×× Server Error,9×× Unknown"
+                    }
+                },
+                {
+                    "required": false,
+                    "showColumn": true,
+                    "location": "main",
+                    "sortOrder": 0,
+                    "elementName": "name",
+                    "label": "Name",
+                    "type": "reflection",
+                    "custom": {
+                        "xsltFile": null,
+                        "expression": "{//entry/code} {//entry/description}",
+                        "formatter": "none",
+                        "override": false,
+                        "fetchAssociatedCounts": false,
+                        "hide": true
+                    }
+                }
+            ],
+            "associations": []
+        }
+    ]
+}

@@ -1,21 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<extension id="crawler" status="released" xmlns="http://symphony-cms.com/schemas/extension/1.0">
-	<name>Page Crawler</name>
-	<description>Spiders a local or remote Symphony powered website profiling pages and looking for problems.</description>
-	<repo type="github">https://github.com/pointybeard/crawler</repo>
-	<url type="discuss">http://symphony-cms.com/discuss/thread/XXX/</url>
-	<types>
-		<type>Utility</type>
-	</types>
-	<authors>
-		<author>
-			<name github="pointybeard" symphony="team">Alistair Kearney</name>
-			<website>http://alistairkearney.com</website>
-		</author>
-	</authors>
-	<releases>
-		<release version="0.01" date="2012-09-10" min="2.3.1beta1" max="2.3.1beta2">
-			- Initial release
-		</release>
-	</releases>
+<extension id="crawler" status="released" xmlns="http://getsymphony.com/schemas/extension/1.0">
+    <name>Frontend Page Crawler</name>
+    <description>Crawls a local or remote Symphony CMS powered website profiling pages and reporting any problems.</description>
+    <repo type="github">https://github.com/pointybeard/crawler</repo>
+    <types>
+        <type>Utility</type>
+        <type>Workflow</type>
+    </types>
+    <authors>
+        <author>
+            <name github="pointybeard" symphony="team">Alannah Kearney</name>
+            <website>http://alannahkearney.com</website>
+        </author>
+    </authors>
+    <dependencies>
+        <dependency version="1.1.1">console</dependency>
+    </dependencies>
+    <releases>
+        <release version="1.0.0" date="2020-03-24" min="2.7.10" max="2.7.x" />
+        <release version="0.0.1" date="2013-01-27" max="2.0.6" />
+    </releases>
 </extension>

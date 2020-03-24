@@ -1,0 +1,32 @@
+{
+    "name": "pointybeard/crawler",
+    "description": "An extension for SymphonyCMS that crawls a local or remote SymphonyCMS powered website profiling pages and reporting any problems.",
+    "homepage": "https://github.com/pointybeard/crawler",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Alannah Kearney",
+            "email": "hi@alannahkearney.com",
+            "homepage": "http://alannahkearney.com",
+            "role": "Developer"
+        }
+    ],
+    "support": {
+      "issues": "https://github.com/pointybeard/crawler/issues",
+      "wiki": "https://github.com/pointybeard/crawler/wiki"
+    },
+    "minimum-stability": "stable",
+    "autoload": {
+        "psr-4": {
+            "pointybeard\\Symphony\\Extensions\\": "src/"
+        }
+    },
+    "require": {
+        "php": ">=7.3",
+        "symfony/http-foundation": "~4.2.0",
+        "pointybeard/symphony-section-builder": "~0.2.0",
+        "pointybeard/symphony-classmapper": "~2.0",
+        "pointybeard/helpers": "^1.2.0",
+        "phpunit/php-timer": "^2.1.0"
+    }
+}
