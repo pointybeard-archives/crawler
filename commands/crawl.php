@@ -8,8 +8,6 @@ use Extension_Crawler;
 use pointybeard\Symphony\Extensions\Console;
 use pointybeard\Symphony\Extensions\Crawler;
 use pointybeard\Helpers\Cli;
-use pointybeard\Helpers\Cli\Colour\Colour;
-use pointybeard\Symphony\Extensions\Cron;
 use pointybeard\Helpers\Foundation\BroadcastAndListen;
 
 class Crawl extends Console\AbstractCommand implements Console\Interfaces\AuthenticatedCommandInterface, BroadcastAndListen\Interfaces\AcceptsListenersInterface

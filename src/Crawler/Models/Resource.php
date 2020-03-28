@@ -6,7 +6,6 @@ namespace pointybeard\Symphony\Extensions\Crawler\Models;
 
 use pointybeard\Symphony\Classmapper;
 use pointybeard\Symphony\Extensions\Crawler;
-use SebastianBergmann\Timer\Timer;
 use pointybeard\Helpers\Foundation\BroadcastAndListen;
 use pointybeard\Helpers\Exceptions\ReadableTrace;
 use pointybeard\Helpers\Cli\Message\Message;
@@ -69,7 +68,7 @@ final class Resource extends Classmapper\AbstractModel implements Classmapper\In
         ];
     }
 
-    public function crawl(Session & $session, ?array $listeners = null): self
+    public function crawl(Session &$session, ?array $listeners = null): self
     {
         if (null !== $listeners) {
             foreach ($listeners as $callback) {
@@ -105,34 +104,34 @@ final class Resource extends Classmapper\AbstractModel implements Classmapper\In
         // Find resources in the page contents
         $resources = $this->findResourcesInPageContents($contents->data);
 
-        foreach($resources->local as $r) {
+        foreach ($resources->local as $r) {
             $session->queueResourceForCrawling($r, $this->id);
         }
 
         return $this;
     }
 
-    private function fetchLinkContents(string $url): \stdClass{
-
+    private function fetchLinkContents(string $url): \stdClass
+    {
         $ch = curl_init();
 
-        $parsed = (object)parse_url($url);
+        $parsed = (object) parse_url($url);
 
         // Allow basic HTTP authentiction
-        if(isset($parsed->user) && isset($parsed->pass)){
-            curl_setopt($ch, CURLOPT_USERPWD, sprintf("%s:%s", $parsed->user, $parsed->pass));
+        if (isset($parsed->user) && isset($parsed->pass)) {
+            curl_setopt($ch, CURLOPT_USERPWD, sprintf('%s:%s', $parsed->user, $parsed->pass));
             curl_setopt($ch, CURLOPT_HTTPAUTH, CURLAUTH_ANY);
         }
 
         // Better support for HTTPS requests
-        if($parsed->scheme == "https"){
+        if ('https' == $parsed->scheme) {
             curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
         }
 
         curl_setopt($ch, CURLOPT_URL, $url);
         curl_setopt($ch, CURLOPT_HEADER, true);
-        curl_setopt($ch, CURLOPT_USERAGENT, "SymphonyCMS/Crawler-1.0.0");
-        curl_setopt($ch, CURLOPT_PORT, (isset($parsed->port) ? $parsed->port : NULL));
+        curl_setopt($ch, CURLOPT_USERAGENT, 'SymphonyCMS/Crawler-1.0.0');
+        curl_setopt($ch, CURLOPT_PORT, (isset($parsed->port) ? $parsed->port : null));
         //@curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_TIMEOUT, 10);
@@ -153,20 +152,19 @@ final class Resource extends Classmapper\AbstractModel implements Classmapper\In
         // Close the connection
         curl_close($ch);
 
-        return (object)[
-            "url" => $url,
-            "headers" => $response[0],
-            "data" => $response[1],
-            "curlInfo" => (object)$info
+        return (object) [
+            'url' => $url,
+            'headers' => $response[0],
+            'data' => $response[1],
+            'curlInfo' => (object) $info,
         ];
     }
 
     private function findResourcesInPageContents(string $contents): ?\stdClass
     {
-
-        $resources = (object)[
-            "remote" => [],
-            "local" => []
+        $resources = (object) [
+            'remote' => [],
+            'local' => [],
         ];
 
         $dom = new \DOMDocument();
@@ -174,36 +172,38 @@ final class Resource extends Classmapper\AbstractModel implements Classmapper\In
 
         // grab all the on the page
         $xpath = new \DOMXPath($dom);
-        $elements = $xpath->evaluate("//*[@src or @href]");
+        $elements = $xpath->evaluate('//*[@src or @href]');
 
         $a = [];
-        for ($ii = 0; $ii < $elements->length; $ii++) {
+        for ($ii = 0; $ii < $elements->length; ++$ii) {
             $item = $elements->item($ii);
             $resource = $item->getAttribute(
                 (
-                    $item->hasAttribute("src")
-                        ? "src"
-                        : "href"
+                    $item->hasAttribute('src')
+                        ? 'src'
+                        : 'href'
                 )
             );
 
-            if($resource{0} == "#" || strlen(trim($resource)) == 0) continue;
+            if ('#' == $resource[0] || 0 == strlen(trim($resource))) {
+                continue;
+            }
 
             $a[] = $resource;
         }
 
         $a = array_unique($a);
 
-        foreach($a as $resource){
-            $resources->{self::isResourceRemote($resource) ? "remote" : "local"}[] = trim($resource);
+        foreach ($a as $resource) {
+            $resources->{self::isResourceRemote($resource) ? 'remote' : 'local'}[] = trim($resource);
         }
 
         return $resources;
     }
 
-    private function isResourceRemote(string $resource): bool{
-
-        if($resource{0} == "/"){
+    private function isResourceRemote(string $resource): bool
+    {
+        if ('/' == $resource[0]) {
             return false;
         }
 
@@ -211,10 +211,10 @@ final class Resource extends Classmapper\AbstractModel implements Classmapper\In
         $parsedResource = parse_url($resource);
 
         // If there is no scheme or host, then its a relative link
-        if(false == isset($parsedResource["scheme"]) || false == isset($parsedResource["host"])){
+        if (false == isset($parsedResource['scheme']) || false == isset($parsedResource['host'])) {
             return false;
         }
 
-        return strcasecmp($parsedRoot["host"], $parsedResource["host"]) != 0;
+        return 0 != strcasecmp($parsedRoot['host'], $parsedResource['host']);
     }
 }

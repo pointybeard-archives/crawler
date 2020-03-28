@@ -96,9 +96,9 @@ final class Session extends Classmapper\AbstractModel implements Classmapper\Int
     {
         $resource = self::resolveUrl($resource, $this->base());
 
-        if(true == $checkForDuplicateInQueue) {
-            foreach($this->resourceQueue as $index => $r) {
-                if($r->location() == $resource) {
+        if (true == $checkForDuplicateInQueue) {
+            foreach ($this->resourceQueue as $index => $r) {
+                if ($r->location() == $resource) {
                     // $this->broadcast(
                     //     Symphony::BROADCAST_MESSAGE,
                     //     E_NOTICE,
@@ -111,7 +111,7 @@ final class Session extends Classmapper\AbstractModel implements Classmapper\Int
             }
         }
 
-        if(true == $ignoreAlreadyCrawled && in_array($resource, $this->resourcesCrawled)) {
+        if (true == $ignoreAlreadyCrawled && in_array($resource, $this->resourcesCrawled)) {
             // $this->broadcast(
             //     Symphony::BROADCAST_MESSAGE,
             //     E_NOTICE,
@@ -122,7 +122,7 @@ final class Session extends Classmapper\AbstractModel implements Classmapper\Int
             return;
         }
 
-        $this->resourceQueue[] = (new Resource)
+        $this->resourceQueue[] = (new Resource())
             ->location($resource)
             ->sessionId($this->id)
             ->parentResourceId($parentResourceId)
@@ -160,13 +160,13 @@ final class Session extends Classmapper\AbstractModel implements Classmapper\Int
             $this->broadcast(
                 Symphony::BROADCAST_MESSAGE,
                 E_NOTICE,
-                (new Message)
+                (new Message())
                     ->message("Session has started - {$url}")
                     ->foreground(Colour::FG_RED)
             );
 
             // Start the process
-            while(count($this->resourceQueue) > 0) {
+            while (count($this->resourceQueue) > 0) {
                 $this
                     ->getNextResourceInQueue()
                     ->crawl($this, $listeners)
@@ -181,7 +181,6 @@ final class Session extends Classmapper\AbstractModel implements Classmapper\Int
             }
 
             $this->status(self::STATUS_COMPLETE);
-
         } catch (\Exception $ex) {
             var_dump($ex);
             $this->status(self::STATUS_FAILED);
