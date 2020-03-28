@@ -4,10 +4,20 @@
             "navigationGroup": "Frontend Crawler",
             "allowFiltering": false,
             "hideFromBackendNavigation": false,
-            "sortOrder": 21,
+            "sortOrder": 9,
             "handle": "crawler-status-codes",
             "name": "Status Codes",
             "fields": [
+                {
+                    "required": true,
+                    "showColumn": false,
+                    "location": "main",
+                    "sortOrder": 1,
+                    "elementName": "code",
+                    "label": "Code",
+                    "type": "number",
+                    "custom": []
+                },
                 {
                     "required": true,
                     "showColumn": false,
@@ -28,16 +38,6 @@
                 },
                 {
                     "required": true,
-                    "showColumn": false,
-                    "location": "main",
-                    "sortOrder": 1,
-                    "elementName": "code",
-                    "label": "Code",
-                    "type": "number",
-                    "custom": []
-                },
-                {
-                    "required": true,
                     "showColumn": true,
                     "location": "sidebar",
                     "sortOrder": 2,
@@ -47,7 +47,7 @@
                     "custom": {
                         "allowMultipleSelection": false,
                         "sortOptions": false,
-                        "staticOptions": "1×× Informational,2×× Success,3×× Redirection,4×× Client Error,5×× Server Error,9×× Unknown"
+                        "staticOptions": "1xx Informational,2xx Success,3xx Redirection,4xx Client Error,5xx Server Error,9xx Unknown"
                     }
                 },
                 {

@@ -4,7 +4,7 @@
             "navigationGroup": "Frontend Crawler",
             "allowFiltering": false,
             "hideFromBackendNavigation": false,
-            "sortOrder": 22,
+            "sortOrder": 10,
             "handle": "crawler-sessions",
             "name": "Sessions",
             "fields": [
@@ -13,34 +13,6 @@
                     "showColumn": true,
                     "location": "sidebar",
                     "sortOrder": 2,
-                    "elementName": "date-completed-at",
-                    "label": "Date Completed At",
-                    "type": "date",
-                    "custom": {
-                        "prePopulate": "",
-                        "calendar": false,
-                        "time": true
-                    }
-                },
-                {
-                    "required": true,
-                    "showColumn": true,
-                    "location": "sidebar",
-                    "sortOrder": 0,
-                    "elementName": "date-created-at",
-                    "label": "Date Created At",
-                    "type": "date",
-                    "custom": {
-                        "prePopulate": "now",
-                        "calendar": false,
-                        "time": true
-                    }
-                },
-                {
-                    "required": false,
-                    "showColumn": true,
-                    "location": "sidebar",
-                    "sortOrder": 9,
                     "elementName": "base",
                     "label": "Base",
                     "type": "textbox",
@@ -56,19 +28,51 @@
                 },
                 {
                     "required": false,
-                    "showColumn": false,
+                    "showColumn": true,
                     "location": "sidebar",
-                    "sortOrder": 8,
-                    "elementName": "timeout",
-                    "label": "Timeout",
-                    "type": "number",
-                    "custom": []
+                    "sortOrder": 0,
+                    "elementName": "date-completed-at",
+                    "label": "Date Completed At",
+                    "type": "date",
+                    "custom": {
+                        "prePopulate": "",
+                        "calendar": false,
+                        "time": true
+                    }
+                },
+                {
+                    "required": true,
+                    "showColumn": true,
+                    "location": "sidebar",
+                    "sortOrder": 1,
+                    "elementName": "date-created-at",
+                    "label": "Date Created At",
+                    "type": "date",
+                    "custom": {
+                        "prePopulate": "now",
+                        "calendar": false,
+                        "time": true
+                    }
+                },
+                {
+                    "required": false,
+                    "showColumn": true,
+                    "location": "sidebar",
+                    "sortOrder": 9,
+                    "elementName": "date-started-at",
+                    "label": "Date Started At",
+                    "type": "date",
+                    "custom": {
+                        "prePopulate": "",
+                        "calendar": false,
+                        "time": true
+                    }
                 },
                 {
                     "required": false,
                     "showColumn": false,
                     "location": "sidebar",
-                    "sortOrder": 7,
+                    "sortOrder": 4,
                     "elementName": "max-depth",
                     "label": "Max Depth",
                     "type": "number",
@@ -78,17 +82,7 @@
                     "required": false,
                     "showColumn": true,
                     "location": "sidebar",
-                    "sortOrder": 3,
-                    "elementName": "uuid",
-                    "label": "UUID",
-                    "type": "uuid",
-                    "custom": []
-                },
-                {
-                    "required": false,
-                    "showColumn": true,
-                    "location": "sidebar",
-                    "sortOrder": 4,
+                    "sortOrder": 6,
                     "elementName": "seed",
                     "label": "Seed",
                     "type": "textbox",
@@ -103,20 +97,10 @@
                     }
                 },
                 {
-                    "required": false,
-                    "showColumn": true,
-                    "location": "sidebar",
-                    "sortOrder": 5,
-                    "elementName": "time",
-                    "label": "Time (ms)",
-                    "type": "number",
-                    "custom": []
-                },
-                {
                     "required": true,
                     "showColumn": true,
                     "location": "sidebar",
-                    "sortOrder": 6,
+                    "sortOrder": 8,
                     "elementName": "status",
                     "label": "Status",
                     "type": "select",
@@ -130,15 +114,31 @@
                     "required": false,
                     "showColumn": true,
                     "location": "sidebar",
-                    "sortOrder": 1,
-                    "elementName": "date-started-at",
-                    "label": "Date Started At",
-                    "type": "date",
-                    "custom": {
-                        "prePopulate": "",
-                        "calendar": false,
-                        "time": true
-                    }
+                    "sortOrder": 7,
+                    "elementName": "time",
+                    "label": "Time (ms)",
+                    "type": "number",
+                    "custom": []
+                },
+                {
+                    "required": false,
+                    "showColumn": false,
+                    "location": "sidebar",
+                    "sortOrder": 3,
+                    "elementName": "timeout",
+                    "label": "Timeout",
+                    "type": "number",
+                    "custom": []
+                },
+                {
+                    "required": false,
+                    "showColumn": true,
+                    "location": "sidebar",
+                    "sortOrder": 5,
+                    "elementName": "uuid",
+                    "label": "UUID",
+                    "type": "uuid",
+                    "custom": []
                 }
             ],
             "associations": []

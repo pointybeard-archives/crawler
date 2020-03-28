@@ -89,6 +89,51 @@ final class Session extends Classmapper\AbstractModel implements Classmapper\Int
         ;
     }
 
+    private $resourceQueue = [];
+    private $resourcesCrawled = [];
+
+    public function queueResourceForCrawling(string $resource, ?int $parentResourceId = null, bool $checkForDuplicateInQueue = true, bool $ignoreAlreadyCrawled = true): void
+    {
+        $resource = self::resolveUrl($resource, $this->base());
+
+        if(true == $checkForDuplicateInQueue) {
+            foreach($this->resourceQueue as $index => $r) {
+                if($r->location() == $resource) {
+                    // $this->broadcast(
+                    //     Symphony::BROADCAST_MESSAGE,
+                    //     E_NOTICE,
+                    //     (new Message)
+                    //         ->message("{$resource} - already already in queue")
+                    //         ->foreground(Colour::FG_RED)
+                    // );
+                    return;
+                }
+            }
+        }
+
+        if(true == $ignoreAlreadyCrawled && in_array($resource, $this->resourcesCrawled)) {
+            // $this->broadcast(
+            //     Symphony::BROADCAST_MESSAGE,
+            //     E_NOTICE,
+            //     (new Message)
+            //         ->message("{$resource} - already been crawled")
+            //         ->foreground(Colour::FG_RED)
+            // );
+            return;
+        }
+
+        $this->resourceQueue[] = (new Resource)
+            ->location($resource)
+            ->sessionId($this->id)
+            ->parentResourceId($parentResourceId)
+        ;
+    }
+
+    public function getNextResourceInQueue(): Resource
+    {
+        return array_shift($this->resourceQueue);
+    }
+
     public function start(?array $listeners = null): void
     {
         try {
@@ -109,29 +154,36 @@ final class Session extends Classmapper\AbstractModel implements Classmapper\Int
 
             Timer::start();
 
-            // Determine the first URL to crawl
-            $url = self::resolveUrl($this->seed(), $this->base());
-
-            // Create a resource and crawl it
-            $resource = (new Resource())
-                ->location($url)
-                ->dateCrawledAt('now')
-                ->sessionId($this->id)
-            ;
+            // Create a resource and add it to the queue
+            $this->queueResourceForCrawling($this->seed());
 
             $this->broadcast(
                 Symphony::BROADCAST_MESSAGE,
                 E_NOTICE,
-                (new Message())
+                (new Message)
                     ->message("Session has started - {$url}")
                     ->foreground(Colour::FG_RED)
             );
 
             // Start the process
-            $resource->crawl($this, $listeners);
+            while(count($this->resourceQueue) > 0) {
+                $this
+                    ->getNextResourceInQueue()
+                    ->crawl($this, $listeners)
+                ;
+                // $this->broadcast(
+                //     Symphony::BROADCAST_MESSAGE,
+                //     E_WARNING,
+                //     (new Message)
+                //         ->message("Queue Size - {".count($this->resourceQueue)."}")
+                //         ->foreground(Colour::FG_RED)
+                // );
+            }
 
             $this->status(self::STATUS_COMPLETE);
+
         } catch (\Exception $ex) {
+            var_dump($ex);
             $this->status(self::STATUS_FAILED);
         }
 
