@@ -27,6 +27,7 @@
         "pointybeard/symphony-section-builder": "~0.2.0",
         "pointybeard/symphony-classmapper": "~2.0",
         "pointybeard/helpers": "^1.2.0",
-        "phpunit/php-timer": "^2.1.0"
+        "phpunit/php-timer": "^2.1.0",
+        "pointybeard/symphony-extended": "~1.0"
     }
 }

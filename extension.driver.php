@@ -15,22 +15,15 @@ require_once __DIR__.'/vendor/autoload.php';
 use pointybeard\Symphony\SectionBuilder;
 use pointybeard\Symphony\Extensions\Crawler;
 use pointybeard\Helpers\Functions\Json;
+use pointybeard\Symphony\Extended;
 
 // Check if the class already exists before declaring it again.
 if (!class_exists('\\Extension_Crawler')) {
-    class Extension_Crawler extends Extension
+    class Extension_Crawler extends Extended\AbstractExtension
     {
-        public static function init()
-        {
-        }
-
         public function install()
         {
-            foreach (['console', 'numberfield', 'uuidfield', 'textboxfield'] as $name) {
-                if (false == $this->checkExtensionDependency($name)) {
-                    throw new \Exception("Extensons '{$name}' is not installed but is required. See extensions/crawler/README.md for help.");
-                }
-            }
+            parent::install();
 
             $this->createSections();
             $this->generateHTTPStatusCodeEntries();
@@ -41,16 +34,6 @@ if (!class_exists('\\Extension_Crawler')) {
         public function enable()
         {
             return $this->install();
-        }
-
-        public function checkExtensionDependency(string $name): bool
-        {
-            $about = \ExtensionManager::about($name);
-            if (true == empty($about) || false == in_array(Extension::EXTENSION_ENABLED, $about['status'])) {
-                return false;
-            }
-
-            return true;
         }
 
         private function generateHTTPStatusCodeEntries(): void

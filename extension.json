@@ -1,0 +1,39 @@
+{
+    "id": "crawler",
+    "name": "Frontend Page Crawler",
+    "description": "Crawls a local or remote Symphony CMS powered website profiling pages and reporting any problems.",
+    "repo": "https://github.com/pointybeard/crawler.git",
+    "homepage": "https://github.com/pointybeard/crawler",
+    "type": [
+        "Utility"
+    ],
+    "authors": [
+        {
+            "name": "Alannah Kearney",
+            "email": "hi@alannahkearney.com",
+            "homepage": "http://alannahkearney.com",
+            "role": "Developer"
+        }
+    ],
+    "require": [
+        "console",
+        "textboxfield",
+        "numberfield",
+        "uuidfield",
+        "reflectionfield"
+    ],
+    "releases": [
+        {
+            "version": "1.0.0",
+            "date": "2020-03-24",
+            "min": "2.7.10",
+            "max": "2.x.x"
+        },
+        {
+            "version": "0.0.1",
+            "date": "2013-01-27",
+            "min": "2.0.6",
+            "max": "2.0.6"
+        }
+    ]
+}
